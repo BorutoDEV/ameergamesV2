@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roblox Games</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: rgba(22, 27, 34, 0.8);
+      --text: #c9d1d9;
+      --text-dim: #8b949e;
+      --accent: #58a6ff;
+      --border: rgba(48, 54, 61, 0.6);
+      --green: #3fb950;
+      --creator: #FFD700;
+      --owner: #ff5555;
+      --dev: #79c0ff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .snow-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .snowflake {
+      position: absolute;
+      background: white;
+      border-radius: 50% 40% 60% 30%;
+      box-shadow: 0 0 6px rgba(255,255,255,0.9);
+      opacity: 0.75;
+      animation: fall linear infinite;
+      transform: rotate(45deg);
+    }
+
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(720deg); }
+    }
+
+    .ticker {
+      background: rgba(33, 38, 45, 0.85);
+      color: #79c0ff;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(4px);
+    }
+
+    .container { display: flex; min-height: 100vh; position: relative; }
+
+    .sidebar {
+      width: 260px;
+      background: rgba(13, 17, 23, 0.9);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: fixed;
+      height: 100%;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .sidebar.hidden { transform: translateX(-100%); }
+
+    .logo { font-size: 1.8rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 40px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; margin: 4px 0; border-radius: 8px;
+      color: var(--text-dim); cursor: pointer; transition: 0.2s;
+      background: rgba(33, 38, 45, 0.6);
+    }
+
+    .nav-item:hover, .nav-item.active { background: rgba(33, 38, 45, 0.9); color: white; }
+
+    .user-card {
+      margin-top: auto;
+      padding: 20px 16px;
+      background: rgba(22, 27, 34, 0.75);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #58a6ff, #1f6feb);
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+    }
+
+    .user-name-link {
+      font-weight: bold;
+      font-size: 1.25rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .user-name-link:hover {
+      text-decoration: underline;
+    }
+
+    .role-tag {
+      padding: 5px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .head-dev-tag { background: var(--creator); color: #000; }
+    .owner-tag { background: var(--owner); color: white; }
+    .dev-tag { background: var(--dev); color: #000; }
+
+    .menu-toggle {
+      position: fixed; top: 16px; left: 16px; z-index: 1100;
+      background: rgba(33, 38, 45, 0.9); color: white;
+      border: none; border-radius: 50%;
+      width: 48px; height: 48px; font-size: 1.4rem;
+      cursor: pointer; backdrop-filter: blur(4px);
+      display: none;
+    }
+
+    .main {
+      margin-left: 260px; flex: 1; padding: 32px 16px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main.full { margin-left: 0; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+
+    h1 { font-size: 2.1rem; color: white; }
+
+    .status {
+      background: rgba(63,185,80,0.25); color: var(--green);
+      padding: 6px 14px; border-radius: 20px; font-size: 0.9rem;
+      border: 1px solid rgba(63,185,80,0.4); backdrop-filter: blur(4px);
+    }
+
+    .section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 40px;
+      backdrop-filter: blur(6px);
+    }
+
+    .section-header {
+      font-size: 1.5rem; margin-bottom: 16px; color: var(--accent);
+      border-bottom: 1px solid var(--border); padding-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      background: rgba(33, 38, 45, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+
+    .game-thumbnail {
+      width: 100%;
+      height: 180px;
+      background: #000;
+      position: relative;
+    }
+
+    .game-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .game-info {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-title {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .play-button {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.2s;
+      width: fit-content;
+    }
+
+    .play-button:hover {
+      background: #388bfd;
+    }
+
+    .credits-box {
+      background: rgba(88, 166, 255, 0.12);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 16px;
+      padding: 40px 28px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .credits-title {
+      font-size: 1.9rem;
+      color: var(--accent);
+      margin-bottom: 32px;
+      font-weight: 600;
+    }
+
+    .team-profiles {
+      margin-top: 40px;
+      padding: 32px 24px;
+      background: rgba(33, 38, 45, 0.6);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+
+    .profiles-title {
+      font-size: 1.6rem;
+      color: var(--accent);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .profile-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .profile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(88, 166, 255, 0.25);
+      color: white;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: all 0.25s;
+      border: 1px solid var(--accent);
+    }
+
+    .profile-btn:hover {
+      background: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(88, 166, 255, 0.3);
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      padding: 20px;
+      background: rgba(13, 17, 23, 0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+      .main { margin-left: 0; padding: 16px 12px; }
+      h1 { font-size: 1.8rem; }
+      .game-thumbnail { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Snow container -->
+  <div class="snow-container" id="snow"></div>
+
+  <button class="menu-toggle" id="menu-toggle-btn"><i class="fas fa-bars"></i></button>
+
+  <div class="ticker">
+    <span>Roblox Games • Maintained & Created by BorutoDEV        </span>
+  </div>
+
+  <div class="container">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">OUR GAMES</div>
+
+      <div class="nav-item active" onclick="scrollToSection('games-list')"><i class="fas fa-gamepad"></i> Roblox Games</div>
+      <div class="nav-item" onclick="scrollToSection('credits')"><i class="fas fa-star"></i> Credits</div>
+      <div class="nav-item" onclick="scrollToSection('team-profiles')"><i class="fas fa-users"></i> Team Profile</div>
+
+      <div class="user-card">
+        <div class="avatar">BD</div>
+        <a href="https://www.roblox.com/users/3814718003/profile" target="_blank" class="user-name-link">
+          BorutoDEV
+        </a>
+        <div class="role-tag head-dev-tag">Head Developer</div>
+        <div style="font-size: 0.9rem; color: var(--text-dim); margin-top: 8px;">
+          Creator & Lead Dev
+        </div>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <header>
+        <h1>Roblox Games</h1>
+        <div class="status"><i class="fas fa-circle" style="color:var(--green); margin-right:6px;"></i> Online</div>
+      </header>
+
+      <div class="section" id="games-list">
+        <div class="section-header">
+          Our Roblox Games
+        </div>
+
+        <div class="game-card">
+          <div class="game-thumbnail">
+            <img src="https://tr.rbxcdn.com/3e8a2e2e2e2e2e2e2e2e2e2e2e2e2e2e/768/432/Image/Png" alt="Escape Tsunami For Cars">
+          </div>
+          <div class="game-info">
+            <div class="game-title">Escape Tsunami For Cars</div>
+            <p style="color: var(--text-dim); margin: 8px 0 16px 0;">
+              Survive the massive tsunami waves in your car! Fast-paced action & crazy escapes.
+            </p>
+            <a href="https://www.roblox.com/games/80667249483636/Escape-Tsunami-For-Cars" 
+               target="_blank" class="play-button">
+              <i class="fas fa-play"></i> Play Now
+            </a>
+          </div>
+        </div>
+
+        <div class="game-card">
+          <div class="game-thumbnail">
+            <img src="https://tr.rbxcdn.com/7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b/768/432/Image/Png" alt="Clicker Legends">
+          </div>
+          <div class="game-info">
+            <div class="game-title">Clicker Legends</div>
+            <p style="color: var(--text-dim); margin: 8px 0 16px 0;">
+              Click to grow stronger, unlock powerful legends, and dominate the leaderboard!
+            </p>
+            <a href="https://www.roblox.com/games/115753707589752/Clicker-Legends" 
+               target="_blank" class="play-button">
+              <i class="fas fa-play"></i> Play Now
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="credits">
+        <div class="credits-box">
+          <div class="credits-title">Credits</div>
+          
+          <div class="credit-person">
+            <strong>Head Developer</strong>
+            <div style="margin-top: 8px;">
+              BorutoDEV
+              <span class="role-tag head-dev-tag">Head Developer</span>
+            </div>
+          </div>
+
+          <div class="credit-person">
+            <strong>Owner</strong>
+            <div style="margin-top: 8px;">
+              Ameer72
+              <span class="role-tag owner-tag">Owner</span>
+            </div>
+          </div>
+
+          <div class="credit-person">
+            <strong>Developer</strong>
+            <div style="margin-top: 8px;">
+              Lilbacon
+              <span class="role-tag dev-tag">Developer</span>
+            </div>
+          </div>
+
+          <p style="color: var(--text-dim); margin-top: 40px; font-size: 1rem;">
+            Thank you for playing our games!<br>
+          </p>
+        </div>
+      </div>
+
+      <!-- Team Profiles section (under credits) -->
+      <div class="section" id="team-profiles">
+        <div class="section-header">
+          Team Profiles
+        </div>
+        <div class="profile-buttons">
+          <a href="https://www.roblox.com/users/3814718003/profile" target="_blank" class="profile-btn">
+            <i class="fas fa-user-circle"></i> Visit BorutoDEV Profile
+          </a>
+          <a href="https://www.roblox.com/users/5031321667/profile" target="_blank" class="profile-btn">
+            <i class="fas fa-user-circle"></i> Visit Ameer72 Profile
+          </a>
+          <a href="https://www.roblox.com/users/8984652710/profile" target="_blank" class="profile-btn">
+            <i class="fas fa-user-circle"></i> Visit Lilbacon Profile
+          </a>
+        </div>
+      </div>
+
+<footer>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+    <div>Created & Maintained by BorutoDEV</div>
+    <div>Copyright © Est. 2026</div>
+  </div>
+</footer>
+
+  <script>
+    // Snow effect
+    function createSnowflake() {
+      const snow = document.createElement('div');
+      snow.className = 'snowflake';
+      const size = Math.random() * 6 + 4;
+      snow.style.width = size + 'px';
+      snow.style.height = size + 'px';
+      snow.style.left = Math.random() * 100 + 'vw';
+      snow.style.animationDuration = Math.random() * 8 + 12 + 's';
+      snow.style.opacity = Math.random() * 0.5 + 0.5;
+      document.getElementById('snow').appendChild(snow);
+      setTimeout(() => snow.remove(), 25000);
+    }
+    setInterval(createSnowflake, 180);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+    const toggleBtn = document.getElementById('menu-toggle-btn');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('active');
+      main.classList.toggle('full');
+    }
+
+    toggleBtn.onclick = toggleSidebar;
+
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth > 768) return;
+      if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target) && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+        main.classList.remove('full');
+      }
+    });
+
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+        main.classList.remove('full');
+      }
+    }
+  </script>
+</body>
+</html>
